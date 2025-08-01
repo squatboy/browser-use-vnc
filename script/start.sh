@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 환경변수 설정
+export DISPLAY=:99
+
 # 가상 디스플레이 시작
 Xvfb :99 -screen 0 1280x720x24 -ac +extension GLX +render -noreset &
 
@@ -13,9 +16,12 @@ websockify --web=/usr/share/novnc/ 6080 localhost:5900 &
 sleep 3
 
 # 디스플레이 테스트
-echo "Testing display..."
+echo "🔍 Testing display..."
 xwininfo -root -display :99
 
+# DISPLAY 환경변수 확인
+echo "📺 DISPLAY is set to: $DISPLAY"
+
 # agent.py 실행
-echo "Starting browser-use agent..."
+echo "🚀 Starting browser-use agent..."
 python browser-use-agent.py
