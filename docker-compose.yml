@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  browser-use-vnc:
+    build: .
+    ports:
+      - "5900:5900"  # VNC
+      - "6080:6080"  # noVNC
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DISPLAY=:99
+    volumes:
+      - ./browser-use-agent.py:/app/browser-use-agent.py
+      - ./.env:/app/.env
+    restart: unless-stopped
