@@ -44,6 +44,7 @@ EXPOSE 5900 6080
 
 # 환경변수 설정
 ENV DISPLAY=:99
+ENV PYTHONUNBUFFERED=1
 
 # 컨테이너 시작 스크립트 실행
 CMD ["./script/start.sh"]
