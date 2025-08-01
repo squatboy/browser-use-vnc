@@ -1,11 +1,14 @@
-# Browser-Use VNC Docker
-
+# Browser-Use VNC Web View
 [Browser-use](https://github.com/browser-use/browser-use) 를 사용한 브라우저 자동화 에이전트를 VNC를 통해 실시간으로 모니터링하고 제어할 수 있는 시스템입니다.
 
 ## 화면 출력 플로우
+<img width="996" height="933" alt="noVNC-arch" src="https://github.com/user-attachments/assets/33de6c7a-f74b-4330-85f1-72ee5840e53c" />
+
+## 데모 영상
+
+https://github.com/user-attachments/assets/5fd999db-980d-4e34-ae8a-dd1c2dd2567a
 
 
-## 빠른 시작
 
 ## 요구사항
 - Docker & Docker Compose
@@ -68,7 +71,17 @@ agent = Agent(
 )
 ```
 
-## 문제 해결
+**iframe 임베드로 웹사이트 통합:**
+다음과 같이 noVNC를 iframe에 임베드하면 자신의 웹사이트에 VNC 서버의 원격 데스크탑 화면을 통합할 수 있습니다.
+
+```html
+<iframe 
+    src="http://서버IP:6080/vnc.html?autoconnect=true" 
+    width="1280" height="720">
+</iframe>
+```
+
+## 오류 시 확인사항
 
 - **Chrome 실행 실패**: 컨테이너 재시작 `docker-compose restart`
 - **VNC 연결 실패**: 보안 그룹 포트 확인
