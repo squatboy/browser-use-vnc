@@ -1,10 +1,17 @@
 ## 🇰🇷 [한국어 보기](README.ko.md)
 
-# Browser-Use VNC Docker
+# Browser-Use VNC Web View
 
 A Docker container that enables real-time monitoring and control of AI browser automation using [Browser-use](https://github.com/browser-use/browser-use) through VNC.
 
 ## Screen Output Flow
+
+<img width="996" height="933" alt="noVNC-arch" src="https://github.com/user-attachments/assets/d86b43ec-4204-4a94-ae86-01c63c39dfe1" />
+
+
+## Demo
+
+https://github.com/user-attachments/assets/910da29b-46bb-4ed9-95b0-0ea42cadf190
 
 
 ## Quick Start
@@ -68,6 +75,17 @@ agent = Agent(
     llm=llm,
     browser_session=browser_session,
 )
+```
+
+## Use-Case
+**Integrating websites with embedding:**
+By embedding the noVNC address in an iframe, you can integrate a remote VNC server's desktop screen directly into your own website.
+
+```html
+<iframe 
+    src="http://서버IP:6080/vnc.html?autoconnect=true" 
+    width="1280" height="720">
+</iframe>
 ```
 
 ## Notes
