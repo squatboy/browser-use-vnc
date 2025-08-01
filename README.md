@@ -38,7 +38,7 @@ docker-compose up --build
 ```
 
 ### 4. Access via Browser
-- **noVNC**: http://Public-IP:6080/vnc.html
+- **noVNC**: http://Server-IP:6080/vnc.html
 - Real-time monitoring and control of browser automation process
 
 ## Running on Server Host
@@ -56,7 +56,7 @@ docker-compose up -d
 ```
 
 ### 3. Access
-- http://Public-IP:6080/vnc.html
+- http://Server-IP:6080/vnc.html
 
 ## 🛠️ System Architecture
 
@@ -83,7 +83,7 @@ By embedding the noVNC address in an iframe, you can integrate a remote VNC serv
 
 ```html
 <iframe 
-    src="http://서버IP:6080/vnc.html?autoconnect=true" 
+    src="http://Server-IP:6080/vnc.html?autoconnect=true" 
     width="1280" height="720">
 </iframe>
 ```
