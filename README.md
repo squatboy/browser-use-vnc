@@ -33,14 +33,24 @@ cp .env.example .env
 # Edit .env file with your actual API key
 ```
 
-### 3. Run Docker
+### 3. Start VNC Services
 ```bash
-docker-compose up --build
+docker-compose up -d --build
 ```
 
-### 4. Access via Browser
+### 4. Access VNC Desktop
 - **noVNC**: http://Server-IP:6080/vnc.html
-- Real-time monitoring and control of browser automation process
+- The VNC desktop is now ready and will remain accessible
+
+### 5. Run Python Scripts (When Needed)
+```bash
+# Execute the default automation script
+docker compose exec browser-use-vnc python browser-use-agent.py
+```
+
+### 6. Monitor in Real-time
+- Watch browser automation in real-time through the noVNC interface
+- You can interact with the browser directly if needed
 
 ## Running on Server Host
 

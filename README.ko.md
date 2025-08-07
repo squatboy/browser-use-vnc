@@ -9,10 +9,12 @@
 https://github.com/user-attachments/assets/5fd999db-980d-4e34-ae8a-dd1c2dd2567a
 
 
+## 빠른 시작
 
 ## 요구사항
 - Docker & Docker Compose
 - Google Gemini API 키 또는 browser-use가 support하는 모델 (다른 모델 사용 시 agent LLM model 수정 필요)
+- git
 
 ### 1. 저장소 클론
 ```bash
@@ -26,14 +28,24 @@ cp .env.example .env
 # .env 파일에서 본인의 실제 API 키로 변경
 ```
 
-### 3. Docker 실행
+### 3. VNC 서비스 시작
 ```bash
-docker-compose up --build
+docker-compose up -d --build
 ```
 
-### 4. 브라우저에서 접속
-- **noVNC**: http://Public-IP:6080/vnc.html
-- 브라우저 자동화 과정을 실시간으로 확인하고 제어 가능
+### 4. VNC 데스크톱 접속
+- **noVNC**: http://서버IP:6080/vnc.html
+- VNC 데스크톱이 준비되었으며 계속 접속 가능한 상태입니다
+
+### 5. Python 스크립트 실행 (필요할 때마다)
+```bash
+# 기본 자동화 스크립트 실행
+docker compose exec browser-use-vnc python browser-use-agent.py
+```
+
+### 6. 실시간 모니터링
+- noVNC 인터페이스를 통해 브라우저 자동화를 실시간으로 확인
+- 필요시 브라우저와 직접 상호작용 가능
 
 ## 서버 호스트에서 실행
 
