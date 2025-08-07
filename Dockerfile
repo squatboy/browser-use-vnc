@@ -2,14 +2,17 @@ FROM python:3.11-slim
 
 # 시스템 의존성 설치
 RUN apt-get update && apt-get install -y \
+    # X11 및 VNC 관련 패키지
     xvfb \
     x11vnc \
     xserver-xorg \
     xauth \
     x11-utils \
     x11-xserver-utils \
+    # 웹 VNC 관련 패키지
     novnc \
     websockify \
+    # Chrome 실행에 필요한 의존성
     libnss3 \
     libatk-bridge2.0-0 \
     libdrm2 \
@@ -22,6 +25,9 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     libatspi2.0-0 \
     libgtk-3-0 \
+    # 네트워크 도구 (디버깅용)
+    net-tools \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # 작업 디렉토리 설정
