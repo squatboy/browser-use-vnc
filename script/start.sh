@@ -62,30 +62,9 @@ cleanup() {
 # 시그널 처리
 trap cleanup SIGTERM SIGINT
 
-# 무한 대기 (VNC 서비스 유지)
-echo "🔄 Keeping VNC services running..."
-while true; do
-    # VNC 서비스들이 살아있는지 확인
-    if ! kill -0 $XVFB_PID 2>/dev/null; then
-        echo "❌ Xvfb died, restarting..."
-        Xvfb :99 -screen 0 1280x720x24 -ac +extension GLX +render -noreset &
-        XVFB_PID=$!
-        sleep 2
-    fi
-    
-    if ! kill -0 $VNC_PID 2>/dev/null || ! netstat -ln | grep -q ":5900 "; then
-        echo "❌ x11vnc died, restarting..."
-        x11vnc -display :99 -nopw -forever -shared -rfbport 5900 -quiet -bg &
-        VNC_PID=$!
-        sleep 1
-    fi
-    
-    if ! kill -0 $WEBSOCKIFY_PID 2>/dev/null || ! netstat -ln | grep -q ":6080 "; then
-        echo "❌ websockify died, restarting..."
-        websockify --web=/usr/share/novnc/ --log-file=/dev/null 6080 localhost:5900 &
-        WEBSOCKIFY_PID=$!
-        sleep 1
-    fi
-    
-    sleep 10
-done
+# 간단한 대기 - 컨테이너를 유지하기 위해
+echo "🔄 VNC services running. Container will stay alive..."
+echo "💡 To stop: docker compose down"
+
+# wait 명령으로 백그라운드 프로세스들을 기다림 (훨씬 효율적)
+wait $XVFB_PID $VNC_PID $WEBSOCKIFY_PID
