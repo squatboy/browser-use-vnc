@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/5fd999db-980d-4e34-ae8a-dd1c2dd2567a
 
 ### 1. 저장소 클론
 ```bash
-git clone https://github.com/your-username/browser-use-vnc
+git clone https://github.com/squatboy/browser-use-vnc.git
 cd browser-use-vnc
 ```
 
@@ -37,20 +37,10 @@ docker-compose up --build
 
 ## 서버 호스트에서 실행
 
-### 1. Security Group 설정
+### Security Group 설정
 Security Group에서 인바운드 허용 포트:
 - 포트 5900 (VNC)
 - 포트 6080 (noVNC)
-
-### 2. 실행
-```bash
-git clone https://github.com/squatboy/browser-use-vnc
-cd browser-use-vnc
-docker-compose up -d
-```
-
-### 3. 접속
-- http://Public-IP:6080/vnc.html
 
 ## 시스템 구조
 
