@@ -23,7 +23,7 @@ https://github.com/user-attachments/assets/910da29b-46bb-4ed9-95b0-0ea42cadf190
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/your-username/browser-use-vnc.git
+git clone https://github.com/squatboy/browser-use-vnc.git
 cd browser-use-vnc
 ```
 
