@@ -4,6 +4,12 @@
 export DISPLAY=:99
 echo "📺 Setting DISPLAY=$DISPLAY"
 
+# 기존 Xvfb 가상 디스플레이 시작 전에 잠금 파일 삭제
+if [ -e /tmp/.X99-lock ]; then
+  echo "🧹 Removing stale X11 lock file /tmp/.X99-lock"
+  rm -f /tmp/.X99-lock
+fi
+
 # 가상 디스플레이 시작
 echo "🖥️ Starting Xvfb..."
 Xvfb :99 -screen 0 1280x720x24 -ac +extension GLX +render -noreset &
