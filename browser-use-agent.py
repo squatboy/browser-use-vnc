@@ -16,7 +16,6 @@ async def main():
             "--no-sandbox",
             "--disable-dev-shm-usage",
             "--disable-gpu",
-            "--headless=new",
         ],
     )
 
