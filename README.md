@@ -2,18 +2,15 @@
 
 # Browser-Use VNC Web View
 
-A Docker container that provides a real-time virtual monitor system using VNC/noVNC.
-This container does not include or execute browser-use itself — run browser-use (or any other app) externally with DISPLAY=:99 to display it here.
+A Docker-based system that provides a real-time virtual monitor using VNC/noVNC with two containers: **vnc** and **agent**. The `vnc` container runs the virtual display server and VNC services, while the `agent` container runs `browser-use` script (flight.py) and other applications inside the container, connected via a shared X11 socket.
 
 ## Screen Output Flow
 
 <img width="996" height="933" alt="noVNC-arch" src="https://github.com/user-attachments/assets/d86b43ec-4204-4a94-ae86-01c63c39dfe1" />
 
-
 ## Demo
 
 https://github.com/user-attachments/assets/910da29b-46bb-4ed9-95b0-0ea42cadf190
-
 
 ## Quick Start
 
@@ -27,8 +24,10 @@ git clone https://github.com/squatboy/browser-use-vnc.git
 cd browser-use-vnc
 ```
 
+### 2. Prepare Environment File
+Place your `.env` file inside the `agent` directory as `agent/.env`. This file is automatically loaded by `docker-compose.yml` to configure the `agent` container.
 
-### 2. Start VNC Services
+### 3. Start VNC and Agent Services
 ```bash
 docker-compose up -d --build
 ```
@@ -37,41 +36,44 @@ docker-compose up -d --build
 - **noVNC**: http://Server-IP:6080/vnc.html
 - The VNC desktop is now ready and will remain accessible
 
+### 5. Run browser-use (flight.py)
+Run `browser-use` (flight.py) inside the `agent` container. The agent container shares the X11 socket with the `vnc` container (DISPLAY=:99), so the browser UI is displayed on the virtual monitor.
 
-### 3. Monitor in Real-time
-- Open **noVNC**: http://Server-IP:6080/vnc.html
-- Any external application (e.g., browser-use, Chromium, etc.) running with DISPLAY=:99 will be visible here in real-time
+```bash
+docker-compose exec agent python flight.py
+```
 
-## Running on Server Host
-
-### Security Group Configuration
-Allow inbound ports in Security Group:
+### Configuration if Running on Server Host
+Allow inbound ports:
 - Port 5900 (VNC)
 - Port 6080 (noVNC)
 
 ## 🛠️ System Architecture
 
-- **Xvfb**: Virtual display server (:99)
-- **TigerVNC (x0vncserver)**: VNC server (port 5900)
-- **websockify**: Converts VNC to WebSocket (port 6080)
+- **vnc container**:
+  - **Xvfb**: Virtual display server (:99)
+  - **x11vnc**: VNC server (port 5900)
+  - **websockify**: Converts VNC to WebSocket (port 6080)
+- **agent container**:
+  - **Python + Playwright + flight.py**: Runs browser-use and other apps
+  - Shares X11 socket with `vnc` to display output on virtual monitor
 
 ## 📝 Customization
-This container only provides the VNC/noVNC system.
-Run your own applications externally (e.g., browser-use, Chromium) with DISPLAY=:99 to display them on the virtual monitor.
+This system uses two containers working together. Run your applications such as `browser-use` inside the `agent` container, which connects to the virtual display provided by the `vnc` container.
 
 ## Use-Case
 **Integrating websites with embedding:**
 By embedding the noVNC address in an iframe, you can integrate a remote VNC server's desktop screen directly into your own website.
 
 ```html
-<iframe 
-    src="http://Server-IP:6080/vnc.html?autoconnect=true" 
-    width="1280" height="720">
+<iframe
+    src="http://Server-IP:6080/vnc.html?autoconnect=true"
+    width="1280" height="720">
 </iframe>
 ```
 
 ## Notes
 
-- **Chrome execution failure**: Restart container `docker-compose restart`
+- **Chrome execution failure**: Restart containers with `docker-compose restart`
 - **VNC connection failure**: Check security group ports
-
+- **Multiple sessions**: To run multiple VNC sessions, use different DISPLAY numbers, ports, and unique Docker Compose project names to isolate environments.
