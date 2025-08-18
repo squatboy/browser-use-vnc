@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  vnc:
+    build: .
+    ports:
+      - "5900:5900" # VNC
+      - "6080:6080" # noVNC
+    environment:
+      - DISPLAY=:99
+    volumes:
+      - x11sock:/tmp/.X11-unix # ★ X 소켓 공유 (핵심)
+    restart: unless-stopped
+
+  agent:
+    build:
+      context: ../agent # ★ agent Dockerfile 위치
+      dockerfile: Dockerfile
+    environment:
+      - DISPLAY=:99 # ★ 동일 디스플레이로 출력
+    env_file:
+      - ../agent/.env
+    volumes:
+      - x11sock:/tmp/.X11-unix # ★ 동일 X 소켓 공유
+      - ../agent/flight.py:/app/flight.py
+      - ../agent/requirements.txt:/app/requirements.txt
+    depends_on:
+      - vnc
+    working_dir: /app
+    command: [ "python", "flight.py" ]
+
+volumes:
+  x11sock:

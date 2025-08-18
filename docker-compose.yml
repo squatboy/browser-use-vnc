@@ -1,9 +1,0 @@
-services:
-  browser-use-vnc:
-    build: .
-    ports:
-      - "5900:5900"  # VNC
-      - "6080:6080"  # noVNC
-    environment:
-      - DISPLAY=:99
-    restart: unless-stopped
