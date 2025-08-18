@@ -24,8 +24,12 @@ git clone https://github.com/squatboy/browser-use-vnc.git
 cd browser-use-vnc/
 ```
 
-### 2. Prepare Environment File
-Place your `.env` file inside the `agent` directory as `agent/.env`. This file is automatically loaded by `docker-compose.yml` to configure the `agent` container.
+### 2. Prepare Environment & Agent Files
+Before running, place your files inside the `agent` directory:
+- `.env`: include your LLM API KEY for browser-use
+- `browser-use agent file`: `flight.py`
+
+> These will be automatically loaded by `docker-compose.yml` to configure and run the `agent` container.
 
 ### 3. Start VNC and Agent Services
 ```bash
@@ -35,14 +39,6 @@ docker-compose up -d --build
 
 ### 4. Access VNC Desktop
 - **noVNC**: http://Server-IP:6080/vnc.html
-- The VNC desktop is now ready and will remain accessible
-
-### 5. Run browser-use (flight.py)
-Run `browser-use` (flight.py) inside the `agent` container. The agent container shares the X11 socket with the `vnc` container (DISPLAY=:99), so the browser UI is displayed on the virtual monitor.
-
-```bash
-docker-compose exec agent python flight.py
-```
 
 ### Configuration if Running on Server Host
 Allow inbound ports:
@@ -58,6 +54,20 @@ Allow inbound ports:
 - **agent container**:
   - **Python + Playwright + flight.py**: Runs browser-use and other apps
   - Shares X11 socket with `vnc` to display output on virtual monitor
+
+### Browser-use BrowserSession Settings
+
+```python
+browser_session = BrowserSession(
+    headless=False,
+    args=[
+        "--no-sandbox",           # required in Docker root environments
+        "--disable-dev-shm-usage" # prevents /dev/shm crashes in limited containers
+    ],
+)
+```
+> Use `--no-sandbox` (root in Docker) and `--disable-dev-shm-usage` (avoid /dev/shm crash).
+
 
 ## 📝 Customization
 This system uses two containers working together. Run your applications such as `browser-use` inside the `agent` container, which connects to the virtual display provided by the `vnc` container.
