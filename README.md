@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/910da29b-46bb-4ed9-95b0-0ea42cadf190
 ### 1. Clone Repository
 ```bash
 git clone https://github.com/squatboy/browser-use-vnc.git
-cd browser-use-vnc
+cd browser-use-vnc/
 ```
 
 ### 2. Prepare Environment File
@@ -29,6 +29,7 @@ Place your `.env` file inside the `agent` directory as `agent/.env`. This file i
 
 ### 3. Start VNC and Agent Services
 ```bash
+cd vnc/
 docker-compose up -d --build
 ```
 

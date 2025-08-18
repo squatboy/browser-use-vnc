@@ -23,11 +23,12 @@ https://github.com/user-attachments/assets/5fd999db-980d-4e34-ae8a-dd1c2dd2567a
 ### 1. 저장소 클론
 ```bash
 git clone https://github.com/squatboy/browser-use-vnc.git
-cd browser-use-vnc
+cd browser-use-vnc/
 ```
 
 ### 2. VNC 및 Agent 서비스 시작
 ```bash
+cd vnc/
 docker-compose up -d --build
 ```
 
