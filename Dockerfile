@@ -53,4 +53,4 @@ EXPOSE 5900 6080
 ENV DISPLAY=:99
 
 # 컨테이너 시작 스크립트 실행
-CMD ["./script/start.sh"]
+CMD ["./start.sh"]
