@@ -6,16 +6,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies required for VNC, virtual display, and browser
 RUN apt-get update && apt-get install -y \
-    # X11 & Virtual Display
+    # X11 및 VNC 관련 패키지
     xvfb \
     x11vnc \
     xserver-xorg \
     xauth \
     x11-utils \
     x11-xserver-utils \
-    # VNC Server (provides x0vncserver)
-    tigervnc-standalone-server \
-    tigervnc-common \
     # Web VNC client
     novnc \
     websockify \
@@ -54,9 +51,6 @@ EXPOSE 5900 6080
 
 # Set the virtual display environment variable
 ENV DISPLAY=:99
-
-# Set the command to run when the container starts
-CMD ["./start.sh"]
 
 # 컨테이너 시작 스크립트 실행
 CMD ["./script/start.sh"]
