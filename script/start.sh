@@ -27,23 +27,9 @@ else
     exit 1
 fi
 
-#############################################
-# VNC 서버 시작 (TigerVNC: x0vncserver)
-#############################################
-echo "🐯 Starting TigerVNC (x0vncserver) without password..."
-
-VNC_AUTH_ARGS="-SecurityTypes None"
-
-# x0vncserver 는 Xvfb(:99) 위의 x11 화면을 VNC로 노출
-# -NeverShared: 단일 클라이언트, -AlwaysShared: 다중 접속 허용. 여기서는 shared 사용
-# -localhost=0: 외부 접속 허용
-x0vncserver \
-    -display :99 \
-    -rfbport 5900 \
-    -AlwaysShared=1 \
-    -localhost=0 \
-    -IdleTimeout=0 \
-    $VNC_AUTH_ARGS &
+# VNC 서버 시작
+echo "📡 Starting x11vnc..."
+x11vnc -display :99 -nopw -forever -shared -rfbport 5900 -quiet -bg &
 VNC_PID=$!
 
 # noVNC 웹 서버 시작
@@ -54,15 +40,9 @@ WEBSOCKIFY_PID=$!
 # 모든 서비스가 시작될 때까지 대기
 sleep 3
 
-# 포트 확인 (TigerVNC 포함)
+# 포트 확인
 echo "🔧 Checking services..."
 netstat -tlnp | grep -E "(5900|6080)" || echo "⚠️ Ports not ready yet"
-
-# TigerVNC 프로세스 가동 확인
-if ! kill -0 $VNC_PID 2>/dev/null; then
-    echo "❌ TigerVNC (x0vncserver) failed to start"
-    exit 1
-fi
 
 # 환경변수 최종 확인
 echo "📺 Final DISPLAY check: $DISPLAY"

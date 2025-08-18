@@ -8,6 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     # X11 & Virtual Display
     xvfb \
+    x11vnc \
     xserver-xorg \
     xauth \
     x11-utils \
@@ -56,3 +57,6 @@ ENV DISPLAY=:99
 
 # Set the command to run when the container starts
 CMD ["./start.sh"]
+
+# 컨테이너 시작 스크립트 실행
+CMD ["./script/start.sh"]
