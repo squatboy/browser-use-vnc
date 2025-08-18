@@ -4,7 +4,8 @@ FROM python:3.11-slim
 RUN apt-get update && apt-get install -y \
     # X11 및 VNC 관련 패키지
     xvfb \
-    x11vnc \
+    tigervnc-standalone-server \
+    tigervnc-common \
     xserver-xorg \
     xauth \
     x11-utils \
