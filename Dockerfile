@@ -1,19 +1,26 @@
-FROM python:3.11-slim
+# Use a general-purpose base image
+FROM ubuntu:22.04
 
-# 시스템 의존성 설치
+# Set non-interactive frontend to avoid prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies required for VNC, virtual display, and browser
 RUN apt-get update && apt-get install -y \
-    # X11 및 VNC 관련 패키지
+    # X11 & Virtual Display
     xvfb \
-    tigervnc-standalone-server \
-    tigervnc-common \
     xserver-xorg \
     xauth \
     x11-utils \
     x11-xserver-utils \
-    # 웹 VNC 관련 패키지
+    # VNC Server (provides x0vncserver)
+    tigervnc-standalone-server \
+    tigervnc-common \
+    # Web VNC client
     novnc \
     websockify \
-    # Chrome 실행에 필요한 의존성
+    # Web Browser
+    chromium-browser \
+    # Dependencies for browser/display
     libnss3 \
     libatk-bridge2.0-0 \
     libdrm2 \
@@ -26,32 +33,26 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     libatspi2.0-0 \
     libgtk-3-0 \
-    # 네트워크 도구 (디버깅용)
+    # Networking tools for debugging
     net-tools \
     curl \
+    # Clean up apt cache
     && rm -rf /var/lib/apt/lists/*
 
-# 작업 디렉토리 설정
+# Set working directory
 WORKDIR /app
 
-# Python 의존성 설치
-COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-RUN playwright install chromium --with-deps
+# Copy the start script into the container
+COPY script/start.sh .
 
-# 애플리케이션 파일 복사
-COPY . .
+# Grant execution permission to the script
+RUN chmod +x start.sh
 
-# 스크립트 실행 권한 부여
-RUN chmod +x script/start.sh
-
-# 포트 노출
+# Expose ports for VNC and noVNC
 EXPOSE 5900 6080
 
-# 환경변수 설정
+# Set the virtual display environment variable
 ENV DISPLAY=:99
-ENV PYTHONUNBUFFERED=1
 
-# 컨테이너 시작 스크립트 실행
-CMD ["./script/start.sh"]
+# Set the command to run when the container starts
+CMD ["./start.sh"]
