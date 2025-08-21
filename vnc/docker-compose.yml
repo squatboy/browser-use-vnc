@@ -22,12 +22,12 @@ services:
       - ../agent/.env
     volumes:
       - x11sock:/tmp/.X11-unix # ★ 동일 X 소켓 공유
-      - ../agent/flight.py:/app/flight.py
+      - ../agent/agent.py:/app/agent.py
       - ../agent/requirements.txt:/app/requirements.txt
     depends_on:
       - vnc
     working_dir: /app
-    command: [ "python", "flight.py" ]
+    command: [ "python", "agent.py" ]
 
 volumes:
   x11sock:

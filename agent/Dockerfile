@@ -18,8 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # 브라우저만 설치 (–with-deps 사용하지 않음)
 RUN python -m playwright install chromium
 
-COPY flight.py .
+COPY agent.py .
 
 ENV DISPLAY=:99
 
-CMD ["python", "flight.py"]
+CMD ["python", "agent.py"]
