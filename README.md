@@ -2,7 +2,7 @@
 
 # Browser-Use VNC Web View
 
-A Docker-based system that provides a real-time virtual monitor using VNC/noVNC with two containers: **vnc** and **agent**. The `vnc` container runs the virtual display server and VNC services, while the `agent` container runs `browser-use` script (flight.py) and other applications inside the container, connected via a shared X11 socket.
+A Docker-based system that provides a real-time virtual monitor using VNC/noVNC with two containers: **vnc** and **agent**. The `vnc` container runs the virtual display server and VNC services, while the `agent` container runs `browser-use` script (agent.py) and other applications inside the container, connected via a shared X11 socket.
 
 ## Screen Output Flow
 
@@ -27,7 +27,7 @@ cd browser-use-vnc/
 ### 2. Prepare Environment & Agent Files
 Before running, place your files inside the `agent` directory:
 - `.env`: include your LLM API KEY for browser-use
-- `browser-use agent file`: `flight.py`
+- `browser-use agent file`: `agent.py`
 
 > These will be automatically loaded by `docker-compose.yml` to configure and run the `agent` container.
 
@@ -51,8 +51,9 @@ Allow inbound ports:
   - **Xvfb**: Virtual display server (:99)
   - **x11vnc**: VNC server (port 5900)
   - **websockify**: Converts VNC to WebSocket (port 6080)
+  
 - **agent container**:
-  - **Python + Playwright + flight.py**: Runs browser-use and other apps
+  - **Python + Playwright + agent.py**: Runs browser-use and other apps
   - Shares X11 socket with `vnc` to display output on virtual monitor
 
 ### Browser-use BrowserSession Settings

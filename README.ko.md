@@ -2,7 +2,7 @@
 VNC/noVNC를 통해 실시간 가상 모니터 시스템을 제공하는 Docker 컨테이너입니다.  
 이 시스템은 두 개의 컨테이너로 구성되어 있습니다:  
 - **vnc 컨테이너**: 가상 디스플레이 및 VNC 서버를 제공합니다.  
-- **agent 컨테이너**: 예를 들어 `flight.py`와 같은 애플리케이션을 실행하며, `.env` 파일과 agent 스크립트를 `agent` 디렉토리에 두고 `env_file`로 자동 로드합니다.  
+- **agent 컨테이너**: 예를 들어 `agent.py`와 같은 애플리케이션을 실행하며, `.env` 파일과 agent 스크립트를 `agent` 디렉토리에 두고 `env_file`로 자동 로드합니다.  
 
 외부에서 실행되는 애플리케이션은 `DISPLAY=:99` 환경으로 실행되어 가상 모니터 화면에서 확인할 수 있습니다.
 
@@ -28,7 +28,7 @@ cd browser-use-vnc/
 
 ### 2. `.env` 파일 및 agent 스크립트 준비
 - `.env`: Browser-Use에 사용될 LLM API KEY 작성
-- `browser-use` 에이전트 스크립트 파일: `flight.py`
+- `browser-use` 에이전트 스크립트 파일: `agent.py`
 
 > `docker-compose.yml`에서 `env_file`로 `.env`를 자동 로드하며, agent 스크립트도 이 컨테이너 내에서 실행됩니다.
 
@@ -54,7 +54,7 @@ docker-compose up -d --build
   - websockify: VNC를 WebSocket으로 변환 (포트 6080)  
 
 - **agent 컨테이너**  
-  - browser-use 또는 기타 애플리케이션 실행 (예: flight.py)  
+  - browser-use 또는 기타 애플리케이션 실행 (예: agent.py)  
   - `.env` 파일은 `agent` 디렉토리에 위치하며, `docker-compose.yml`에서 `env_file`로 참조  
   - vnc 컨테이너와 X11 소켓을 공유하여 가상 디스플레이에 접근  
 
