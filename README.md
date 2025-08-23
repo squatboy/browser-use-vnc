@@ -1,30 +1,37 @@
-## 🇰🇷 [한국어 보기](README.ko.md)
-
 # Browser-Use noVNC Web View
 
-A Docker-based system providing a real-time virtual monitor using VNC/noVNC, composed of two containers: **vnc** and **agent**. The `vnc` container runs the virtual display server and VNC services, while the `agent` container runs browser automation scripts such as `agent.py`. The two containers communicate via a shared X11 UNIX socket volume, ensuring isolated and secure sessions.
+A Docker-based system providing a real-time web address access–based virtual monitor using VNC/noVNC, composed of two containers: **vnc** and **agent**. The `vnc` container runs the virtual display server and VNC services, while the `agent` container executes browser automation scripts such as `agent.py`. The two containers communicate via a shared X11 UNIX socket volume, ensuring session isolation and security.
 
 
+## System Architecture 
 
-## System Architecture & Workflow
 
-Each VNC/agent session pair runs isolated using Docker namespaces and unique X11 socket volumes. This design ensures that display data is securely separated between sessions.
+<img width="996" height="933" alt="473523324-d86b43ec-4204-4a94-ae86-01c63c39dfe1" src="https://github.com/user-attachments/assets/4431006a-1656-49ce-b97c-07b719b23743" />
 
-### vnc Container
+### Multi-Session Flow
+<img width="1138" height="570" alt="image" src="https://github.com/user-attachments/assets/8379e126-1940-4096-8857-3cdb141f4ad6" />
+
+<br>
+
+When a user requests the execution of a browser-use task, the orchestrator triggers the creation of a new session. For each session, a VNC/agent container pair is launched independently, and a real-time virtual monitor screen is provided via noVNC. Each session runs completely isolated using Docker namespaces and dedicated X11 socket volumes, ensuring that display data is securely separated between sessions.
+
+
+## Containers
+
+### vnc
 
 - **Xvfb**: Virtual display server (e.g., :99)
 - **x11vnc**: VNC server
 - **websockify**: Converts VNC to WebSocket for noVNC access
 
-### agent Container
+### agent
 
-- Runs Browser-use Python scripts (e.g., `agent.py`)
+- Executes browser-use Python scripts (e.g., `agent.py`)
 - Shares the X11 socket volume with the `vnc` container to render output to the virtual display
 
+<br>
 
-
-
-## Quick Start
+## Getting Started
 
 ### Requirements
 
@@ -39,18 +46,17 @@ git clone https://github.com/squatboy/browser-use-vnc.git
 cd browser-use-vnc/
 ```
 
-### 2. Prepare Agent Files
+### 2. Prepare `.env` Files and Agent Script
+- `agent/.env`: Write the LLM API KEY to be used by Browser-Use
+- Browser-Use agent script file: `agent/agent.py`
+- Root `.env`: Specify `PUBLIC_HOST=<Server public IP or domain>` (used by the orchestrator to generate the noVNC access URL)
 
-Place the following files inside the `agent/` directory:
+> These files are automatically loaded by Docker Compose to configure and run the agent container.
 
-- `.env`: Your LLM API key and other environment variables for browser-use
-- `agent.py`: Your browser-use agent script
-
-> These files will be automatically loaded by Docker Compose to configure and run the agent container.
 
 ### 3. Run the FastAPI Orchestrator
 
-Start the orchestrator service which manages session creation:
+Start the orchestrator service that manages session creation:
 
 ```bash
 uvicorn app_orchestrator:app --host 0.0.0.0 --port 8000
@@ -64,7 +70,7 @@ Send a POST request to create a new VNC/agent session:
 POST http://<Server-IP>:8000/sessions
 ```
 
-The response includes the session ID and a dynamically assigned noVNC port:
+The response includes the session ID and the dynamically assigned noVNC port:
 
 ```json
 {
@@ -76,12 +82,11 @@ The response includes the session ID and a dynamically assigned noVNC port:
 
 ### 5. Connect to the Session
 
-Open the provided `url` in your web browser to access virtual display via noVNC.
-
+Open the provided URL in your web browser to connect to the virtual monitor via noVNC.
 
 ## Manual Multi-Session Test Example
 
-You can manually create multiple independent sessions by specifying different `SESSION_ID` and `NOVNC_PORT` environment variables and running separate Docker Compose projects.
+Without using orchestration, you can manually create multiple independent sessions by specifying different `SESSION_ID` and `NOVNC_PORT` environment variables and running separate Docker Compose projects.
 
 ```bash
 # First session
@@ -92,17 +97,17 @@ SESSION_ID=session1 NOVNC_PORT=6081 docker compose -p vnc1 up -d --build
 SESSION_ID=session2 NOVNC_PORT=6082 docker compose -p vnc2 up -d --build
 ```
 
-Then access the sessions independently:
+Then connect to each session:
 
-- http://<Server-IP>:6081/vnc.html
-- http://<Server-IP>:6082/vnc.html
+- http://:6081/vnc.html
+- http://:6082/vnc.html
 
-Each session uses its own X11 socket volume, ensuring isolation with no data leakage between sessions.
+Each session uses its own dedicated X11 socket volume, ensuring isolation with no data leakage between sessions.
 
 
 ## Security Group & Network Configuration
 
-When deploying on a public server, open only the noVNC ports required for your sessions (e.g., 6080, 6081, 6082, ...). Make sure to restrict access appropriately.
+When deploying on a public server, open only the noVNC ports required for your sessions (e.g., 6080, 6081, 6082, ...). Restrict access as necessary for security.
 
 
 ## BrowserSession Python Configuration Example
@@ -113,23 +118,24 @@ When running browsers inside the agent container, use the following settings to 
 browser_session = BrowserSession(
     headless=False,
     args=[
-        "--no-sandbox",            # Required for running as root inside Docker
-        "--disable-dev-shm-usage"  # Prevents /dev/shm crashes in limited containers
+        "--no-sandbox",            # Required when running as root in Docker
+        "--disable-dev-shm-usage"  # Prevent crashes with limited /dev/shm in containers
     ],
 )
 ```
 
 
+
 ## Customization & Advanced Usage
 
 - The system separates the `vnc` container (virtual display and VNC services) and the `agent` container (browser automation scripts).
-- You can extend or modify agent scripts (`agent.py`) to suit your automation workflows.
+- Extend or modify the agent scripts (`agent.py`) to fit your automation workflows.
 - The agent container connects to the shared X11 socket volume to render browser output on the virtual display managed by the vnc container.
 
 
-## Use Case: Embedding VNC Desktop in Your Website
+## Use Case: Embedding the VNC Desktop in a Website
 
-Embed the noVNC web client inside an iframe to integrate the remote desktop directly into your web application:
+Embed the noVNC web client in an iframe to integrate the remote desktop directly into your web application:
 
 ```html
 <iframe
@@ -139,14 +145,15 @@ Embed the noVNC web client inside an iframe to integrate the remote desktop dire
 ```
 
 
+
 ## Troubleshooting & Tips
 
-- **Chrome fails to launch**: Restart the containers using `docker compose restart`.
-- **VNC connection fails**: Verify your firewall or security group allows inbound traffic on the noVNC ports.
+- **Chrome fails to launch**: Restart the containers with `docker compose restart`.
+- **VNC connection fails**: Check whether inbound traffic on the noVNC ports is allowed by your firewall or security group.
 
 
 ## Additional Notes
 
-- Each session is isolated via Docker namespaces and unique X11 socket volumes.
-- Communication between `agent` and `vontainers occurs only through the Xnc` c11 UNIX socket, not over the network.
+- Each session is isolated via Docker namespaces and dedicated X11 socket volumes.
+- Communication between the `agent` and `vnc` containers occurs only through the X11 UNIX socket, not over the network.
 - You can freely add or modify agent-side scripts and dependencies to fit your use case.
