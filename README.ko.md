@@ -2,22 +2,31 @@
 
 VNC/noVNC를 사용하여 실시간 웹 주소 접근 기반 가상 모니터를 제공하는 Docker 기반 시스템으로, **vnc**와 **agent** 두 개의 컨테이너로 구성되어 있습니다. `vnc` 컨테이너는 가상 디스플레이 서버와 VNC 서비스를 실행하고, `agent` 컨테이너는 `agent.py`와 같은 브라우저 자동화 스크립트를 실행합니다. 두 컨테이너는 공유된 X11 UNIX 소켓 볼륨을 통해 통신하며, 세션을 격리하고 보안을 보장합니다.
 
+<br>
 
-## 시스템 아키텍처 & 워크플로우
+## 시스템 아키텍처
 
-각 VNC/agent 세션 쌍은 Docker 네임스페이스와 고유한 X11 소켓 볼륨을 사용하여 격리되어 실행됩니다. 이러한 설계는 세션 간의 디스플레이 데이터가 안전하게 분리되도록 보장합니다.
+<img width="996" height="933" alt="473523324-d86b43ec-4204-4a94-ae86-01c63c39dfe1" src="https://github.com/user-attachments/assets/4431006a-1656-49ce-b97c-07b719b23743" />
 
-### vnc 컨테이너
+### 멀티 세션 플로우
+<img width="1138" height="570" alt="image" src="https://github.com/user-attachments/assets/8379e126-1940-4096-8857-3cdb141f4ad6" />
+
+<br>
+
+각 사용자가 browser-use task 실행을 요청하면 오케스트레이터가 새로운 세션 생성을 트리거합니다. 이때 개별 세션마다 VNC/agent 컨테이너 쌍이 독립적으로 기동되고, 해당 세션에 대해 noVNC를 통한 실시간 가상 모니터 화면이 제공됩니다. 각 세션은 Docker 네임스페이스와 전용 X11 소켓 볼륨을 기반으로 완전히 격리되어 실행되며, 이를 통해 세션 간 디스플레이 데이터가 안전하게 분리됩니다.
+
+## Containers
+### vnc
 
 - **Xvfb**: 가상 디스플레이 서버 (예: :99)
 - **x11vnc**: VNC 서버
 - **websockify**: VNC를 WebSocket으로 변환하여 noVNC 접근 제공
 
-### agent 컨테이너
-
+### agent
 - Browser-use Python 스크립트 실행 (예: `agent.py`)
 - `vnc` 컨테이너와 X11 소켓 볼륨을 공유하여 가상 디스플레이에 출력 렌더링
 
+<br>
 
 ## 시작하기
 
@@ -34,12 +43,10 @@ git clone https://github.com/squatboy/browser-use-vnc.git
 cd browser-use-vnc/
 ```
 
-### 2. Agent 파일 준비
-
-다음 파일들을 `agent/` 디렉토리에 배치합니다:
-
-- `.env`: browser-use용 LLM API 키 및 기타 환경 변수
-- `agent.py`: browser-use agent 스크립트
+### 2. `.env` 파일 및 agent 스크립트 준비
+- `agent/.env`: Browser-Use에 사용될 LLM API KEY 작성
+- `browser-use` 에이전트 스크립트 파일: `agent/agent.py`
+- root 디렉토리의 `.env`: `PUBLIC_HOST=<서버의 공인 IP 또는 도메인>` 지정 (오케스트레이터가 noVNC 접속 URL 생성 시 사용)
 
 > 이 파일들은 Docker Compose에 의해 자동으로 로드되어 agent 컨테이너를 구성하고 실행합니다.
 > 
@@ -73,6 +80,8 @@ POST http://<Server-IP>:8000/sessions
 ### 5. 세션 접속
 
 제공된 URL을 웹 브라우저에서 열어 noVNC를 통해 가상 모니터에 접속합니다.
+
+<br>
 
 ## 멀티 세션 수동 테스트 예시
 
