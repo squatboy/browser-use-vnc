@@ -3,31 +3,35 @@ version: "3.9"
 services:
   vnc:
     build: .
-    ports:
-      - "5900:5900" # VNC
-      - "6080:6080" # noVNC
     environment:
       - DISPLAY=:99
+      - SESSION_ID=${SESSION_ID}
+      - NOVNC_PORT=${NOVNC_PORT}
+    ports:
+      - "${NOVNC_PORT}:6080"   # 예: 6081, 6082, ...
+    labels:
+      - "bu.session=${SESSION_ID}"
+      - "bu.role=vnc"
     volumes:
-      - x11sock:/tmp/.X11-unix # ★ X 소켓 공유 (핵심)
-    restart: unless-stopped
+      - x11sock:/tmp/.X11-unix
 
   agent:
     build:
-      context: ../agent # ★ agent Dockerfile 위치
+      context: ../agent
       dockerfile: Dockerfile
-    environment:
-      - DISPLAY=:99 # ★ 동일 디스플레이로 출력
     env_file:
-      - ../agent/.env
+      - ${ENV_FILE:-../agent/.env}  # agent 용 .env
+    environment:
+      - DISPLAY=:99
+      - SESSION_ID=${SESSION_ID}
+      # TASK_PROMPT 미사용 → 환경변수 전달 제거
+    labels:
+      - "bu.session=${SESSION_ID}"
+      - "bu.role=agent"
     volumes:
-      - x11sock:/tmp/.X11-unix # ★ 동일 X 소켓 공유
-      - ../agent/agent.py:/app/agent.py
-      - ../agent/requirements.txt:/app/requirements.txt
-    depends_on:
-      - vnc
-    working_dir: /app
-    command: [ "python", "agent.py" ]
+      - x11sock:/tmp/.X11-unix
+    depends_on: [vnc]
+    command: ["python","agent.py"]   # agent 진입점
 
 volumes:
   x11sock:

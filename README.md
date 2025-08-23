@@ -1,91 +1,152 @@
 ## 🇰🇷 [한국어 보기](README.ko.md)
 
-# Browser-Use VNC Web View
+# Browser-Use noVNC Web View
 
-A Docker-based system that provides a real-time virtual monitor using VNC/noVNC with two containers: **vnc** and **agent**. The `vnc` container runs the virtual display server and VNC services, while the `agent` container runs `browser-use` script (agent.py) and other applications inside the container, connected via a shared X11 socket.
+A Docker-based system providing a real-time virtual monitor using VNC/noVNC, composed of two containers: **vnc** and **agent**. The `vnc` container runs the virtual display server and VNC services, while the `agent` container runs browser automation scripts such as `agent.py`. The two containers communicate via a shared X11 UNIX socket volume, ensuring isolated and secure sessions.
 
-## Screen Output Flow
 
-<img width="996" height="933" alt="noVNC-arch" src="https://github.com/user-attachments/assets/d86b43ec-4204-4a94-ae86-01c63c39dfe1" />
 
-## Demo
+## System Architecture & Workflow
 
-https://github.com/user-attachments/assets/910da29b-46bb-4ed9-95b0-0ea42cadf190
+Each VNC/agent session pair runs isolated using Docker namespaces and unique X11 socket volumes. This design ensures that display data is securely separated between sessions.
+
+### vnc Container
+
+- **Xvfb**: Virtual display server (e.g., :99)
+- **x11vnc**: VNC server
+- **websockify**: Converts VNC to WebSocket for noVNC access
+
+### agent Container
+
+- Runs Browser-use Python scripts (e.g., `agent.py`)
+- Shares the X11 socket volume with the `vnc` container to render output to the virtual display
+
+
+
 
 ## Quick Start
 
-## Requirements
+### Requirements
+
 - Docker & Docker Compose
 - git
+- Python 3.8 or higher
 
-### 1. Clone Repository
+### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/squatboy/browser-use-vnc.git
 cd browser-use-vnc/
 ```
 
-### 2. Prepare Environment & Agent Files
-Before running, place your files inside the `agent` directory:
-- `.env`: include your LLM API KEY for browser-use
-- `browser-use agent file`: `agent.py`
+### 2. Prepare Agent Files
 
-> These will be automatically loaded by `docker-compose.yml` to configure and run the `agent` container.
+Place the following files inside the `agent/` directory:
 
-### 3. Start VNC and Agent Services
+- `.env`: Your LLM API key and other environment variables for browser-use
+- `agent.py`: Your browser-use agent script
+
+> These files will be automatically loaded by Docker Compose to configure and run the agent container.
+
+### 3. Run the FastAPI Orchestrator
+
+Start the orchestrator service which manages session creation:
+
 ```bash
-cd vnc/
-docker-compose up -d --build
+uvicorn app_orchestrator:app --host 0.0.0.0 --port 8000
 ```
 
-### 4. Access VNC Desktop
-- **noVNC**: http://Server-IP:6080/vnc.html
+### 4. Create a New Session
 
-### Configuration if Running on Server Host
-Allow inbound ports:
-- Port 5900 (VNC)
-- Port 6080 (noVNC)
+Send a POST request to create a new VNC/agent session:
 
-## 🛠️ System Architecture
+```
+POST http://<Server-IP>:8000/sessions
+```
 
-- **vnc container**:
-  - **Xvfb**: Virtual display server (:99)
-  - **x11vnc**: VNC server (port 5900)
-  - **websockify**: Converts VNC to WebSocket (port 6080)
-  
-- **agent container**:
-  - **Python + Playwright + agent.py**: Runs browser-use and other apps
-  - Shares X11 socket with `vnc` to display output on virtual monitor
+The response includes the session ID and a dynamically assigned noVNC port:
 
-### Browser-use BrowserSession Settings
+```json
+{
+  "session_id": "session123",
+  "novnc_port": 6081,
+  "url": "http://<Server-IP>:6081/vnc.html"
+}
+```
+
+### 5. Connect to the Session
+
+Open the provided `url` in your web browser to access virtual display via noVNC.
+
+
+## Manual Multi-Session Test Example
+
+You can manually create multiple independent sessions by specifying different `SESSION_ID` and `NOVNC_PORT` environment variables and running separate Docker Compose projects.
+
+```bash
+# First session
+cd vnc/
+SESSION_ID=session1 NOVNC_PORT=6081 docker compose -p vnc1 up -d --build
+
+# Second session
+SESSION_ID=session2 NOVNC_PORT=6082 docker compose -p vnc2 up -d --build
+```
+
+Then access the sessions independently:
+
+- http://<Server-IP>:6081/vnc.html
+- http://<Server-IP>:6082/vnc.html
+
+Each session uses its own X11 socket volume, ensuring isolation with no data leakage between sessions.
+
+
+## Security Group & Network Configuration
+
+When deploying on a public server, open only the noVNC ports required for your sessions (e.g., 6080, 6081, 6082, ...). Make sure to restrict access appropriately.
+
+
+## BrowserSession Python Configuration Example
+
+When running browsers inside the agent container, use the following settings to avoid common Docker-related issues:
 
 ```python
 browser_session = BrowserSession(
     headless=False,
     args=[
-        "--no-sandbox",           # required in Docker root environments
-        "--disable-dev-shm-usage" # prevents /dev/shm crashes in limited containers
+        "--no-sandbox",            # Required for running as root inside Docker
+        "--disable-dev-shm-usage"  # Prevents /dev/shm crashes in limited containers
     ],
 )
 ```
-> Use `--no-sandbox` (root in Docker) and `--disable-dev-shm-usage` (avoid /dev/shm crash).
 
 
-## 📝 Customization
-This system uses two containers working together. Run your applications such as `browser-use` inside the `agent` container, which connects to the virtual display provided by the `vnc` container.
+## Customization & Advanced Usage
 
-## Use-Case
-**Integrating websites with embedding:**
-By embedding the noVNC address in an iframe, you can integrate a remote VNC server's desktop screen directly into your own website.
+- The system separates the `vnc` container (virtual display and VNC services) and the `agent` container (browser automation scripts).
+- You can extend or modify agent scripts (`agent.py`) to suit your automation workflows.
+- The agent container connects to the shared X11 socket volume to render browser output on the virtual display managed by the vnc container.
+
+
+## Use Case: Embedding VNC Desktop in Your Website
+
+Embed the noVNC web client inside an iframe to integrate the remote desktop directly into your web application:
 
 ```html
 <iframe
-    src="http://Server-IP:6080/vnc.html?autoconnect=true"
+    src="http://<Server-IP>:6080/vnc.html?autoconnect=true"
     width="1280" height="720">
 </iframe>
 ```
 
-## Notes
 
-- **Chrome execution failure**: Restart containers with `docker-compose restart`
-- **VNC connection failure**: Check security group ports
-- **Multiple sessions**: To run multiple VNC sessions, use different DISPLAY numbers, ports, and unique Docker Compose project names to isolate environments.
+## Troubleshooting & Tips
+
+- **Chrome fails to launch**: Restart the containers using `docker compose restart`.
+- **VNC connection fails**: Verify your firewall or security group allows inbound traffic on the noVNC ports.
+
+
+## Additional Notes
+
+- Each session is isolated via Docker namespaces and unique X11 socket volumes.
+- Communication between `agent` and `vontainers occurs only through the Xnc` c11 UNIX socket, not over the network.
+- You can freely add or modify agent-side scripts and dependencies to fit your use case.
