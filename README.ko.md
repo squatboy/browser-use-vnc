@@ -96,10 +96,17 @@ SESSION_ID=session1 NOVNC_PORT=6081 docker compose -p vnc1 up -d --build
 SESSION_ID=session2 NOVNC_PORT=6082 docker compose -p vnc2 up -d --build
 ```
 
+<img width="928" height="106" alt="image" src="https://github.com/user-attachments/assets/4b0ece57-77e8-4a11-90b6-ff77d1f8e726" />
+
+
 그런 다음 세션에 각각 접속합니다:
 
 - http://:6081/vnc.html
 - http://:6082/vnc.html
+
+<img width="743" height="97" alt="image" src="https://github.com/user-attachments/assets/643ce7ba-3434-491a-a302-398da8aa6aa4" />
+<img width="743" height="97" alt="image" src="https://github.com/user-attachments/assets/e6fed99b-eb47-421e-a146-01e5d5ece702" />
+
 
 각 세션은 고유한 X11 소켓 볼륨을 사용하므로 세션 간 데이터 누출 없이 격리됩니다.
 

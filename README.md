@@ -1,3 +1,5 @@
+## 🇰🇷 [한국어 보기](README.ko.md)
+
 # Browser-Use noVNC Web View
 
 A Docker-based system providing a real-time web address access–based virtual monitor using VNC/noVNC, composed of two containers: **vnc** and **agent**. The `vnc` container runs the virtual display server and VNC services, while the `agent` container executes browser automation scripts such as `agent.py`. The two containers communicate via a shared X11 UNIX socket volume, ensuring session isolation and security.
@@ -97,10 +99,18 @@ SESSION_ID=session1 NOVNC_PORT=6081 docker compose -p vnc1 up -d --build
 SESSION_ID=session2 NOVNC_PORT=6082 docker compose -p vnc2 up -d --build
 ```
 
+<img width="928" height="106" alt="image" src="https://github.com/user-attachments/assets/53324c5a-73c9-46ac-80e9-52d1425d3acd" />
+
+
 Then connect to each session:
 
 - http://:6081/vnc.html
 - http://:6082/vnc.html
+
+<img width="743" height="97" alt="image" src="https://github.com/user-attachments/assets/a28b3676-ba04-4cb4-a7b3-3f38b23fc703" />
+
+<img width="743" height="97" alt="image" src="https://github.com/user-attachments/assets/cf943c7b-6e0b-4b32-be41-d61ed2986cf4" />
+
 
 Each session uses its own dedicated X11 socket volume, ensuring isolation with no data leakage between sessions.
 
