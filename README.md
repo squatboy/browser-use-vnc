@@ -49,36 +49,48 @@ cd browser-use-vnc/
 ```
 
 ### 2. Prepare `.env` Files and Agent Script
-- `agent/.env`: Write the LLM API KEY to be used by Browser-Use
+- `agent/.env`: Write the LLM API KEY to be used by Browser-Use.
 - Browser-Use agent script file: `agent/agent.py`
-- Root `.env`: Specify `PUBLIC_HOST=<Server public IP or domain>` (used by the orchestrator to generate the noVNC access URL)
+- `orchestrator/.env`: Specify `PUBLIC_HOST=<Server public IP or domain>` (must be set in this file; used by the orchestrator to generate the noVNC access URL).
 
-> These files are automatically loaded by Docker Compose to configure and run the agent container.
+> These files are automatically loaded by Docker Compose to configure and run the agent and orchestrator containers.
 
 
 ### 3. Run the FastAPI Orchestrator
 
-Start the orchestrator service that manages session creation:
+To run the orchestrator service that manages session creation, follow these steps:
 
-```bash
-uvicorn app_orchestrator:app --host 0.0.0.0 --port 8000
-```
+1. **Create and activate a Python virtual environment inside the `orchestrator/` folder:**
+    ```bash
+    cd orchestrator
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+2. **Upgrade pip and install dependencies from `requirements.txt`:**
+    ```bash
+    pip install -U pip
+    pip install -r requirements.txt
+    ```
+3. **Run the FastAPI server using uvicorn:**
+    ```bash
+    uvicorn app_orchestrator:app --host 0.0.0.0 --port 8000 --reload
+    ```
 
 ### 4. Create a New Session
 
 Send a POST request to create a new VNC/agent session:
 
-```
-POST http://<Server-IP>:8000/sessions
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{}' http://<Server-IP>:8000/sessions
 ```
 
-The response includes the session ID and the dynamically assigned noVNC port:
+The response includes the session ID and the dynamically assigned noVNC url
 
+Example Response:
 ```json
 {
-  "session_id": "session123",
-  "novnc_port": 6081,
-  "url": "http://<Server-IP>:6081/vnc.html"
+  "session_id": "1a2b3c4d",
+  "novnc_url": "http://<Server-IP>:6081/vnc.html?autoconnect=true&resize=scale"
 }
 ```
 

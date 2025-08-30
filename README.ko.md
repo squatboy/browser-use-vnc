@@ -45,15 +45,29 @@ cd browser-use-vnc/
 
 ### 2. `.env` 파일 및 agent 스크립트 준비
 - `agent/.env`: Browser-Use에 사용될 LLM API KEY 작성
-- `browser-use` 에이전트 스크립트 파일: `agent/agent.py`
-- root 디렉토리의 `.env`: `PUBLIC_HOST=<서버의 공인 IP 또는 도메인>` 지정 (오케스트레이터가 noVNC 접속 URL 생성 시 사용)
+- `agent/agent.py`: Browser-Use 에이전트 스크립트 파일
+- `orchestrator/.env`: `PUBLIC_HOST=<서버의 공인 IP 또는 도메인>` 지정 (반드시 설정 필요, orchestrator가 noVNC 접속 URL 생성 시 사용)
 
-> 이 파일들은 Docker Compose에 의해 자동으로 로드되어 agent 컨테이너를 구성하고 실행합니다.
-> 
+> 이 파일들은 Docker Compose에 의해 자동으로 로드되어 agent 및 orchestrator 컨테이너를 구성하고 실행합니다.
 
 ### 3. FastAPI Orchestrator 실행
 
-세션 생성을 관리하는 오케스트레이터 서비스를 시작합니다:
+1. **orchestrator 폴더에서 가상환경 생성 및 활성화**
+
+```bash
+cd orchestrator
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+2. **pip 업그레이드 및 requirements.txt 설치**
+
+```bash
+pip install -U pip
+pip install -r requirements.txt
+```
+
+3. **uvicorn으로 서버 실행**
 
 ```bash
 uvicorn app_orchestrator:app --host 0.0.0.0 --port 8000
@@ -63,17 +77,18 @@ uvicorn app_orchestrator:app --host 0.0.0.0 --port 8000
 
 POST 요청을 보내 새로운 VNC/agent 세션을 생성합니다:
 
-```
-POST http://<Server-IP>:8000/sessions
+```bash
+curl -X POST http://<Server-IP>:8000/sessions -H "Content-Type: application/json" -d '{}'
 ```
 
-응답에는 세션 ID와 동적으로 할당된 noVNC 포트가 포함됩니다:
+응답에는 세션 ID와 동적으로 할당된 noVNC URL이 포함됩니다.
+
+예시 응답:
 
 ```json
 {
-  "session_id": "session123",
-  "novnc_port": 6081,
-  "url": "http://<Server-IP>:6081/vnc.html"
+  "session_id": "1a2b3c4d",
+  "novnc_url": "http://<Server-IP>:6081/vnc.html?autoconnect=true&resize=scale"
 }
 ```
 
