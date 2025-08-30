@@ -15,6 +15,17 @@ VNC/noVNC를 사용하여 실시간 웹 주소 접근 기반 가상 모니터를
 
 각 사용자가 browser-use task 실행을 요청하면 오케스트레이터가 새로운 세션 생성을 트리거합니다. 이때 개별 세션마다 VNC/agent 컨테이너 쌍이 독립적으로 기동되고, 해당 세션에 대해 noVNC를 통한 실시간 가상 모니터 화면이 제공됩니다. 각 세션은 Docker 네임스페이스와 전용 X11 소켓 볼륨을 기반으로 완전히 격리되어 실행되며, 이를 통해 세션 간 디스플레이 데이터가 안전하게 분리됩니다.
 
+## 데모 영상
+
+![vncsingle](https://github.com/user-attachments/assets/6468d96a-6f57-411f-9012-c39017110ff6)
+
+
+#### 멀티 세션
+
+![multisession](https://github.com/user-attachments/assets/f7d62f1d-575e-475a-8462-a9167ee1a9d6)
+
+
+
 ## Containers
 ### vnc
 
