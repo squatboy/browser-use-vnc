@@ -24,7 +24,6 @@ services:
     environment:
       - DISPLAY=:99
       - SESSION_ID=${SESSION_ID}
-      # TASK_PROMPT 미사용 → 환경변수 전달 제거
     labels:
       - "bu.session=${SESSION_ID}"
       - "bu.role=agent"
