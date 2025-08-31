@@ -90,7 +90,7 @@ To run the orchestrator service that manages session creation, follow these step
 Send a POST request to create a new VNC/agent session:
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{}' http://<Server-IP>:8000/sessions
+curl -X POST http://<Server-IP>:8000/sessions
 ```
 
 The response includes the session ID and the dynamically assigned noVNC url

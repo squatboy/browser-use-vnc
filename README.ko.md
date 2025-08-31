@@ -89,7 +89,7 @@ uvicorn app_orchestrator:app --host 0.0.0.0 --port 8000
 POST 요청을 보내 새로운 VNC/agent 세션을 생성합니다:
 
 ```bash
-curl -X POST http://<Server-IP>:8000/sessions -H "Content-Type: application/json" -d '{}'
+curl -X POST http://<Server-IP>:8000/sessions
 ```
 
 응답에는 세션 ID와 동적으로 할당된 noVNC URL이 포함됩니다.
