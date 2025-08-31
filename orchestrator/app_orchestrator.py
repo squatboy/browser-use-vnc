@@ -21,10 +21,23 @@ NOVNC_MAX = 65535
 NOVNC_SCAN_STEPS = 5000  # 최대 스캔 개수
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # 모델
-class StartReq(BaseModel):
-    note: Optional[str] = None
+class SessionResponse(BaseModel):
+    session_id: str
+    novnc_url: str
+
+
+class SessionDetailResponse(BaseModel):
+    session_id: str
+    compose_project: str
+    novnc_port: int
+    url: str
+    status: str
+    started_at: float
+
+
+class ErrorResponse(BaseModel):
+    detail: str
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -200,9 +213,18 @@ async def compose_up_with_retry(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Handlers
-@app.post("/sessions")
-async def start_session(req: StartReq):
+# 핸들러들
+@app.post(
+    "/sessions",
+    response_model=SessionResponse,
+    responses={
+        500: {
+            "model": ErrorResponse,
+            "description": "Server configuration error or Docker failure",
+        }
+    },
+)
+async def start_session():
     # 세션 식별자 & compose 프로젝트명
     session_id = uuid.uuid4().hex[:8]
     project = f"bu_{session_id}"
@@ -236,9 +258,13 @@ async def start_session(req: StartReq):
     return {"session_id": session_id, "novnc_url": url}
 
 
-@app.get("/sessions/{session_id}")
+@app.get(
+    "/sessions/{session_id}",
+    response_model=SessionDetailResponse,
+    responses={404: {"model": ErrorResponse, "description": "Session not found"}},
+)
 def get_session(session_id: str):
     data = sessions.get(session_id)
     if not data:
-        return {"error": "not found"}
-    return data
+        raise HTTPException(status_code=404, detail="Session not found")
+    return SessionDetailResponse(**data)
