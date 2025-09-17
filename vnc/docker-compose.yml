@@ -30,7 +30,6 @@ services:
     volumes:
       - x11sock:/tmp/.X11-unix
     depends_on: [vnc]
-    command: ["python","agent.py"]   # agent 진입점
 
 volumes:
   x11sock:
